@@ -5,7 +5,6 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Interpolator
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
@@ -34,8 +33,8 @@ class Speedometer(context: Context, attrs: AttributeSet) : View(context, attrs) 
         canvas?.save()
         canvas?.scale(.5f * width, -1f * height)
         canvas?.translate(1.0f, -1.0f)
-        canvas?.drawCircle(0f, 0f, 1f, paint)
-        paint.color = softGreen
+        paint.style = Paint.Style.STROKE
+        paint.color = thisBackColor
         canvas?.drawCircle(0f, 0f, 0.8f, paint)
         paint.color = softRed
         paint.style = Paint.Style.STROKE
@@ -83,14 +82,17 @@ class Speedometer(context: Context, attrs: AttributeSet) : View(context, attrs) 
         if (objectAnimator != null) {
             objectAnimator!!.cancel()
         }
-        if (value2 in 101..116) {
+        if (value2 in 101..112) {
             val anim: ValueAnimator
-            if (thisBackColor != softGreen) {
+            if (thisBackColor == softGreen) {
                 anim = ValueAnimator.ofInt(softGreen, softRed)
                 thisBackColor = softRed
-            } else anim = ValueAnimator.ofInt(softRed, softGreen)
+            } else {
+                anim = ValueAnimator.ofInt(softRed, softGreen)
+                thisBackColor = softGreen
+            }
             anim.addUpdateListener { invalidate() }
-            anim.duration = (200 + abs(value - value2) * 5).toLong()
+            anim.duration =  (200 + abs(value - value2) * 5).toLong()
             anim.start()
         }
 
