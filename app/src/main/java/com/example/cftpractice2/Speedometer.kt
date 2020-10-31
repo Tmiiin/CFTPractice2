@@ -5,10 +5,12 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Interpolator
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.BounceInterpolator
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
@@ -22,9 +24,9 @@ class Speedometer(context: Context, attrs: AttributeSet) : View(context, attrs) 
     private var softRed = Color.parseColor("#FF5240")
     private var colorArrow = Color.MAGENTA
     private var thisBackColor = softGreen
-    var maxValue = 125
+    var maxValue = 120
     var step = Math.PI / maxValue
-    var value = 20
+    var value = 10
     var objectAnimator: ObjectAnimator? = null
 
     override fun onDraw(canvas: Canvas?) {
@@ -48,7 +50,7 @@ class Speedometer(context: Context, attrs: AttributeSet) : View(context, attrs) 
         canvas?.restore()
     }
 
-    fun drawArrow(canvas: Canvas?) {
+    private fun drawArrow(canvas: Canvas?) {
         canvas?.rotate(90 - 180f * value / maxValue)
         paint.color = colorArrow
         paint.strokeWidth = 0.02f
@@ -56,7 +58,7 @@ class Speedometer(context: Context, attrs: AttributeSet) : View(context, attrs) 
         canvas?.drawLine(-0.01f, 0f, 0f, 1f, paint)
     }
 
-    fun drawDivision(canvas: Canvas?) {
+    private fun drawDivision(canvas: Canvas?) {
         var scale = 0.9f
         var x2: Double
         var y2: Double
@@ -81,21 +83,23 @@ class Speedometer(context: Context, attrs: AttributeSet) : View(context, attrs) 
         if (objectAnimator != null) {
             objectAnimator!!.cancel()
         }
-        if (value in 101..116) {
+        if (value2 in 101..116) {
             val anim: ValueAnimator
-            if (thisBackColor == softGreen) {
+            if (thisBackColor != softGreen) {
                 anim = ValueAnimator.ofInt(softGreen, softRed)
                 thisBackColor = softRed
             } else anim = ValueAnimator.ofInt(softRed, softGreen)
             anim.addUpdateListener { invalidate() }
-            anim.duration = (100 + abs(value - value2) * 5).toLong()
+            anim.duration = (200 + abs(value - value2) * 5).toLong()
             anim.start()
         }
 
         objectAnimator = ObjectAnimator.ofInt(this, "value", value, value2)
-        objectAnimator?.duration = (100 + abs(value - value2) * 10).toLong()
+        objectAnimator?.duration = (200 + abs(value - value2) * 10).toLong()
         objectAnimator?.addUpdateListener { invalidate() }
-        objectAnimator?.interpolator = AccelerateDecelerateInterpolator()
+        if( maxValue - value2 < 20)
+            objectAnimator?.interpolator = BounceInterpolator()
+        else objectAnimator?.interpolator = AccelerateDecelerateInterpolator()
         objectAnimator?.start()
 
     }
