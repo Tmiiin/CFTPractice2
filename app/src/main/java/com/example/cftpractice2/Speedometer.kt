@@ -87,11 +87,10 @@ class Speedometer(context: Context, attrs: AttributeSet) : View(context, attrs) 
             if (thisBackColor == softGreen) {
                 anim = ValueAnimator.ofInt(softGreen, softRed)
                 thisBackColor = softRed
-            } else if(value2 < 112){
+            } else {
                 anim = ValueAnimator.ofInt(softRed, softGreen)
                 thisBackColor = softGreen
             }
-            else { anim = ValueAnimator.ofInt(softRed, softRed) }
             anim.addUpdateListener { invalidate() }
             anim.duration =  (200 + abs(value - value2) * 5).toLong()
             anim.start()
